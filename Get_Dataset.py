@@ -2,9 +2,9 @@ import tensorflow as tf
 import os
 
 
-from Attention_cnn import dataset
+from Attention_cnn import Dataset
 
-class Get_Dataset(dataset):
+class SceneParsing(Dataset):
 
     def __init__(
             self,
@@ -14,7 +14,7 @@ class Get_Dataset(dataset):
             max_crop_downsample,
             colour_aug_factor,
             debug,):
-        super(Get_Dataset, self).__init__(
+        super(SceneParsing, self).__init__(
             batch_size,
             network_input_h,
             network_input_w,
@@ -24,9 +24,9 @@ class Get_Dataset(dataset):
             val_batch_size=1)
 
     def get_paths(self, train):
-        folders = Attention_cnn.Dataset.TRAINING_DIRS if train else Attention_cnn.Dataset.VALIDATION_DIRS
-        image_dir = folders[Attention_cnn.Dataset.IMAGES]
-        label_dir = folders[Attention_cnn.Dataset.LABELS]
+        folders = Attention_cnn.Data.TRAINING_DIRS if train else Attention_cnn.Data.VALIDATION_DIRS
+        image_dir = folders[Attention_cnn.Data.IMAGES]
+        label_dir = folders[Attention_cnn.Data.LABELS]
 
         example_ids = []
         for x in os.listdir(image_dir):
@@ -34,12 +34,12 @@ class Get_Dataset(dataset):
 
         image_paths = [os.path.join(image_dir, x + '.jpg') for x in example_ids]
         label_paths = [os.path.join(label_dir, x + '.png') for x in example_ids]
-        edge_paths = [os.path.join(label_dir, Attention_cnn.Dataset.EDGE_PREFIX + x + '.png') for x in example_ids]
+        edge_paths = [os.path.join(label_dir, Attention_cnn.Data.EDGE_PREFIX + x + '.png') for x in example_ids]
 
         return image_paths, label_paths, edge_paths
 
     def flat_to_one_hot(self, labels, edges):
-        labels = tf.one_hot(labels[..., 0], Attention_cnn.Dataset.N_CLASSES)
+        labels = tf.one_hot(labels[..., 0], Attention_cnn.Data.N_CLASSES)
         edges = tf.one_hot(edges[..., 0], 2)
         return labels, edges
 
