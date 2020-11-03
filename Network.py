@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from model.Resnet50_m import Res50
+from Attention_cnn.model.Resnet50_m import Res50
 
 def resize_to(x, target_t=None, target_shape=None):
     """resize x to target_shape"""
