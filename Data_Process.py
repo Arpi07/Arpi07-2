@@ -7,11 +7,10 @@ import sys
 
 from scipy.io import loadmat
 
-import Dataset
-import datasets_utils
-import training_utils
-import Get_Dataset
-import Get_Dataset_utils
+import Attention_cnn.datasets_utils
+import Attention_cnn.train.training_utils
+from Attention_cnn import Dataset
+
 
 
 def matlab_mat_to_numpy():
@@ -64,7 +63,7 @@ def edge_path_from_label_path(label_path):
 def label_path_to_edge_saved(label_path):
     edge_path = edge_path_from_label_path(label_path)
     label = imageio.imread(label_path)
-    edge = training_utils.flat_label_to_edge_label(label, Dataset.N_CLASSES)
+    edge = Attention_cnn.train.training_utils.flat_label_to_edge_label(label, Dataset.N_CLASSES)
     imageio.imsave(edge_path, edge)
 
 #labelling of boundary edge mask
@@ -95,7 +94,7 @@ def get_dataset():
     # Labelling of boundary edge mask
     create_edge_labels()
     # Dataset dictionary
-   datasets_utils.list_files(Dataset.DATA_DIR)
+   Attention_cnn.datasets_utils.list_files(Dataset.DATA_DIR)
 
 
 if __name__ == '__main__':
