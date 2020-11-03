@@ -7,13 +7,14 @@ import sys
 
 from scipy.io import loadmat
 
-import gated_shape_cnn.datasets.utils
-import gated_shape_cnn.training.utils
-from gated_shape_cnn.datasets import scene_parsing_data
+import datasets_utils
+import training_utils
+import Get_Dataset
+import Get_Dataset_utils
 
 
 def matlab_mat_to_numpy():
-    """read the colour palette and convert to an nd array"""
+    "Conversion of colour infoormation to an nd array"""
     if not os.path.exists(scene_parsing_data.COLORMAP_ORIG_PATH):
         os.system('wget {} -O {}'.format(scene_parsing_data.COLOR_DOWNLOAD_URL, scene_parsing_data.COLORMAP_ORIG_PATH))
 
