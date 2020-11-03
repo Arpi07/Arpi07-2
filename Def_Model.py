@@ -1,7 +1,7 @@
 import imageio
 import tensorflow as tf
 
-from model.Network import (
+from Attention_cnn.model.Network import (
     gradient_mag, ShapeStream, AtrousPyramidPooling, FinalLogitLayer,Res50Backbone)
 
 
