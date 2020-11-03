@@ -3,7 +3,9 @@ import numpy as np
 import imageio
 import os
 
-from gated_shape_cnn.datasets import scene_parsing_data
+import Dataset
+import Get_Dataset
+import Data_Process
 
 
 def build_legend_info(object_ids):
@@ -13,22 +15,22 @@ def build_legend_info(object_ids):
         if object_id == 0:
             names.append('other')
         else:
-            object_info = scene_parsing_data.OBJECT_INFO[object_id]
+            object_info = Dataset.OBJECT_INFO[object_id]
             names.append(object_info['names'])
-        colours.append(scene_parsing_data.COLOURS[object_id])
+        colours.append(Dataset.COLOURS[object_id])
     return names, colours
 
 
 def flat_label_to_plottable(label):
-    coloured_image = scene_parsing_data.COLOURS[label]
+    coloured_image = Dataset.COLOURS[label]
     objects_present = np.unique(label)
     names, colours = build_legend_info(objects_present)
     return coloured_image, (names, colours)
 
 
 def paths_from_example_id(example_id):
-    image_path = os.path.join(scene_parsing_data.TRAINING_IM_DIR, example_id + '.jpg')
-    label_path = os.path.join(scene_parsing_data.TRAINING_ANNOTATION_DIR, example_id + '.png')
+    image_path = os.path.join(Dataset.TRAINING_IM_DIR, example_id + '.jpg')
+    label_path = os.path.join(Dataset.TRAINING_ANNOTATION_DIR, example_id + '.png')
     return image_path, label_path
 
 
@@ -38,7 +40,7 @@ def example_paths_from_single_path(single_path):
 
 
 def get_random_example_paths():
-    im_path = random.choice(os.listdir(scene_parsing_data.TRAINING_IM_DIR))
+    im_path = random.choice(os.listdir(Dataset.TRAINING_IM_DIR))
     return example_paths_from_single_path(im_path)
 
 
