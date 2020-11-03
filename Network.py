@@ -1,10 +1,9 @@
 import tensorflow as tf
 
-from gated_shape_cnn.model.atrous_xception import AtrousXception
-
+import Resnet50_m
 
 def resize_to(x, target_t=None, target_shape=None):
-    """resize x to shape or target_tensor or target_shape"""
+    """resize x to target_shape"""
     if target_shape is None:
         s = tf.shape(target_t)
         target_shape = tf.stack([s[1], s[2]])
@@ -35,7 +34,7 @@ def gradient_mag(tensor, from_rgb=False, eps=1e-12):
     return normalised_mag
 
 
-class GateConv(tf.keras.layers.Layer):
+class Attention(tf.keras.layers.Layer):
     """
     x                    [b, h, w, c]
     x = batch_norm(x)    [b, h, w, c]
@@ -46,7 +45,7 @@ class GateConv(tf.keras.layers.Layer):
     x = sigmoid(x)       [b, h, w, 1]
     """
     def __init__(self, **kwargs):
-        super(GateConv, self).__init__(**kwargs)
+        super(Attention, self).__init__(**kwargs)
         self.batch_norm_1 = tf.keras.layers.BatchNormalization(
             scale=False,
             momentum=0.9)
@@ -81,7 +80,7 @@ class GateConv(tf.keras.layers.Layer):
         return x
 
 
-class GatedShapeConv(tf.keras.layers.Layer):
+class AttentionConv(tf.keras.layers.Layer):
     """
     features, shape                  [b, h, w, c],       [b, h, w, d]
     x = concat([features, shape])    [b, h, w, c + d]
@@ -90,9 +89,9 @@ class GatedShapeConv(tf.keras.layers.Layer):
     x = conv(x)                      [b, h, w, c]
     """
     def __init__(self, **kwargs):
-        super(GatedShapeConv, self).__init__(**kwargs)
+        super(AttentionConv, self).__init__(**kwargs)
         self.conv_1 = None
-        self.gated_conv = GateConv()
+        self.gated_conv = Attention()
 
     def build(self, input_shape):
         feature_channels = input_shape[0][-1]
@@ -185,9 +184,9 @@ class ShapeAttention(tf.keras.layers.Layer):
     def __init__(self, **kwargs):
         super(ShapeAttention, self).__init__(**kwargs)
 
-        self.gated_conv_1 = GatedShapeConv()
-        self.gated_conv_2 = GatedShapeConv()
-        self.gated_conv_3 = GatedShapeConv()
+        self.gated_conv_1 = AttentionConv()
+        self.gated_conv_2 = AttentionConv()
+        self.gated_conv_3 = AttentionConv()
 
         self.shape_reduction_2 = tf.keras.layers.Conv2D(
             filters=1,
@@ -531,12 +530,12 @@ class FinalLogitLayer(tf.keras.layers.Layer):
         return x
 
 
-class XceptionBackbone(tf.keras.layers.Layer):
+class Res50Backbone(tf.keras.layers.Layer):
     ADD_6_LAYER_INDEX = 75
     def __init__(self, **kwargs):
-        super(XceptionBackbone, self).__init__(**kwargs)
+        super(Res50Backbone, self).__init__(**kwargs)
         self.backbone = None
-        backbone = AtrousXception()
+        backbone = Res50()
         self.backbone = tf.keras.Model(
             backbone.input,
             outputs={
@@ -544,10 +543,10 @@ class XceptionBackbone(tf.keras.layers.Layer):
                 's2': backbone.get_layer('block3_sepconv2_bn').output,
                 # named add_6 if built on its own, but this is generated automatically
                 # and can change, so need to access the layer directly
-                's3': backbone.layers[XceptionBackbone.ADD_6_LAYER_INDEX].output,
+                's3': backbone.layers[Res50Backbone.ADD_6_LAYER_INDEX].output,
                 's4': backbone.get_layer('block14_sepconv2_act').output,
             })
 
     def call(self, inputs, training=None):
-        inputs = tf.keras.applications.xception.preprocess_input(inputs)
+        inputs = tf.keras.applications.resnet50.preprocess_input(inputs)
         return self.backbone(inputs, training=training)
