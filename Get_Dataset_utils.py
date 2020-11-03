@@ -3,7 +3,7 @@ import numpy as np
 import imageio
 import os
 
-from Attention_cnn import Dataset
+from Attention_cnn import Data
 
 
 def build_legend_info(object_ids):
