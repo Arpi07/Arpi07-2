@@ -4,31 +4,16 @@ import sys
 
 from time import time
 
-import gated_shape_cnn
-import gated_shape_cnn.training.loss as gscnn_loss
+import Attention_cnn
+import Attention_cnn.train.Loss_Dual as acnn_loss
 
-from gated_shape_cnn.training import utils
-from gated_shape_cnn.model import GSCNN
+from Attention_cnn.train import training_utils
+from Attention_cnn.model import ACNN
 
 
 class Trainer:
-    LOG_FREQ = 200
-    """
-    Custom training loop in tensorflow 2. The loop is as follows:
-    for n epochs
-        train_epoch
-            for batch in epoch
-                accum_updates
-                accum_updates += forward_backward_pass
-                if number accumulations
-                    weights += accum_updates
-                    accum_updates = 0
-        val epoch
-            evaluate model
-            if mean iou > best iou
-                overwrite best model
-            overwrite latest model
-    """
+    LOG_FREQ = 10000
+   
     def __init__(
             self,
             model,
@@ -40,21 +25,7 @@ class Trainer:
             model_dir,
             loss_weights,
             accumulation_iterations=None):
-        """
-
-        :param model GSCNN model:
-        :param  train_dataset tf.data.Dataset, which when iterated returns
-                image, label, edge, also should not repeat indefintely:
-        :param val_dataset tf.data.Dataset, which when iterated returns
-                image, label, edge, also should not repeat indefintely:
-        :param epochs number epochs to go through the data:
-        :param optimiser tf.keras.optimizer:
-        :param log_dir where you want the logs to appear:
-        :param model_dir where you want ot save the model:
-        :param loss_weights tensor shape [4], gscnn loss params (lambda_i's from paper) :
-        :param accumulation_iterations accumulate
-               gradients over this many training steps, before updating weights:
-        """
+        
         self.loss_weights = tf.constant(loss_weights)
         self.model = model
         self.train_dataset = train_dataset
@@ -74,27 +45,22 @@ class Trainer:
         self.n_accum_iters = accumulation_iterations
 
         if accumulation_iterations is not None:
-            # TODO fix the hackyness here actually calling the model will need to define
-            #  self.build for all the layers
-
-            # build the model so that all unbuilt weights are added to the trainable
-            # variables
+           
+            
             self.model(tf.zeros([1, 720, 720, 3],))
 
-            # create an accumulation variable for every traininable variable in the model
-            # we can use these to accumulate weight updates across training steps
+            
             self.accum_vars = [
                 tf.Variable(tf.zeros_like(tv.read_value()), trainable=False)
                 for tv in self.model.trainable_variables]
 
-            # counter for how many iterations have happened, when this reaches self.n_accum_iters
-            # we update the weights and zero the accum vars
+            
             self.current_iters = tf.Variable(0, trainable=False, dtype=tf.int32)
         else:
             self.accum_vars = None
             self.current_iters = None
 
-        # where we are going to save the tensorboard stuff
+        
         train_log_dir = os.path.join(log_dir, 'train')
         val_log_dir = os.path.join(log_dir, 'val')
         self.train_writer = tf.summary.create_file_writer(train_log_dir)
@@ -108,7 +74,7 @@ class Trainer:
             'mean_iou': tf.keras.metrics.MeanIoU(num_classes=self.model.n_classes)}
 
         # initialise the best iou so far
-        # will save best model according to this
+        
         self.best_iou = -1.
 
     #######################################################################
@@ -121,7 +87,7 @@ class Trainer:
         prediction, shape_head = out[..., :-1], out[..., -1:]
 
         # calculate the loss, consists of several components
-        sub_losses = gscnn_loss.loss(
+        sub_losses = acnn_loss.loss(
             label,
             prediction,
             shape_head,
@@ -228,9 +194,7 @@ class Trainer:
             self.log_pass(im, label, edge_label, prediction, shape_head, sub_losses)
             self.val_step_counter.assign_add(1)
 
-    #######################################################################
-    # Logging
-    #######################################################################
+    
 
     def get_step(self):
         return self.train_step_counter if self.training else self.val_step_counter
@@ -269,11 +233,10 @@ class Trainer:
             0)
         loss = tf.add_n(sub_losses)
         with tf.summary.record_if(log_condition):
-            seg_loss, edge_loss, edge_class_consistency, edge_consistency = sub_losses
+            seg_loss, edge_loss
             tf.summary.scalar('loss/seg_loss', seg_loss, step=step)
             tf.summary.scalar('loss/edge_loss', edge_loss, step=step)
-            tf.summary.scalar('loss/edge_class_consistency', edge_class_consistency, step=step)
-            tf.summary.scalar('loss/edge_consistency', edge_consistency, step=step)
+     
             tf.summary.scalar('loss/total_loss', loss, step=step)
         return loss
 
@@ -306,10 +269,10 @@ def train_model(
         log_dir,
         model_dir,
         accum_iterations=4,
-        loss_weights=(1., 20., 1., 1.)):
+        loss_weights=(17., 1.)):
 
     # build the model
-    model = GSCNN(n_classes=n_classes)
+    model = ACNN(n_classes=n_classes)
 
     # train
     trainer = Trainer(
