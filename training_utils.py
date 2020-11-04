@@ -18,7 +18,7 @@ def validate_label_tensor(label):
        label,
         4,
         message='label')
-    # raise value error for consistency with other validations
+   
     try:
         tf.debugging.assert_greater_equal(
             tf.shape(label)[-1],
