@@ -3,9 +3,8 @@ import tensorflow as tf
 
 class Dataset:
     """
-    All custom datasets should inherit from this class. To do so you need to provide two methods
         self.get_paths(train) -> image_paths, label_paths, edge_paths
-        self.flat_to_one_hot(labels, edges) -> converts flat segmentations (h, w) to one_hot (h, w, c)
+        
     """
 
     def __init__(
@@ -18,15 +17,7 @@ class Dataset:
             colour_aug_factor,
             debug,
             val_batch_size=2):
-        """
-        :param val_batch_size:
-        :param batch_size:
-        :param network_input_h height of training input:
-        :param network_input_w width of training input:
-        :param max_crop_downsample how far we will scale cropping window:
-        :param colour_aug_factor:
-        :param debug setting to true will give you a dataset with 1 element for both train and val:
-        """
+       
         self.n_classes = n_classes
         self.batch_size = batch_size
         self.network_input_h = network_input_h
@@ -53,9 +44,9 @@ class Dataset:
         """
 
         :param all_input_shape [h, w, 3+c+2] the shape of every input with the channels concated:
-        :return the size of the random crop:
+     
         """
-        # we can only crop as much as the smallest dimension
+       
         max_size = tf.reduce_min(all_input_shape[:2])
         max_crop_size = tf.stack([max_size, max_size])
 
