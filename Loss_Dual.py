@@ -31,15 +31,7 @@ def loss_bce(y_true, y_pred, eps=0.0, from_logits=True):
 
 
 def _gumbel_softmax(logits, eps=1e-8, tau=1.):
-    """
-
-    :param logits:
-    :param eps:
-    :param tau temprature:
-    :return soft approximation to argmax:
-
-    see https://arxiv.org/abs/1611.01144
-    """
+  
     g = tf.random.uniform(tf.shape(logits))
     g = -tf.math.log(eps - tf.math.log(g + eps))
     return tf.nn.softmax((logits + g) / tau)
