@@ -30,3 +30,39 @@ Packages required to run the following code:
 6. Scipy
 
 7. imageio
+
+
+
+##Training on the dataset...
+
+
+Buidling network..
+
+import Attention_cnn.model
+number_classes = 3 
+#Speech balloons, narrative text boxes and background
+model = Attention_cnn.model.ACNN(n_classes=number_classes)
+output = model(some_input)
+logits, shape_head = output[..., :-1], output[..., -1:]
+
+
+#Training model...
+
+from Attention_cnn.train import train_model
+
+train_model(
+    n_classes=instance_of_n_classes,
+    train_data= dataset_loader.build_training_dataset(),
+    val_data=dataset_loader.build_validation_dataset(),
+    optimiser=optimiser,
+    epochs=2000,
+    log_dir='logsBalloon',
+    model_dir='logsBalloon/model',
+    accum_iterations=4,
+    loss_weights=(17., 1.)):
+    
+    
+    
+
+
+
