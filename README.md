@@ -78,5 +78,51 @@ train_model(
     
     
 
+#Creating own data....
+
+for img, label, edge_label in dataset:
+
+    # im         [b, h, w, 3]       tf.float32 
+    
+    # label      [b, h, w, classes] tf.float32, classes = number of target classes
+    
+    # edge_label [b, h, w, 2]       tf.float32,  2 = boundary edge pixels/non-boundary edge pixels
+    
+   pass
+   
+   
+   
+   
+
+
+#Conversion of model into saved model....
+
+
+from Attention_cnn.model import export_model,ACNNInfer
+
+
+# Creation of Saved model...
+
+export_model(
+
+    classes=num_classes, 
+    
+    ckpt_path='/path/Inpput/weights', 
+    
+    out_dir='/dir/Output/save/model/',)
+
+
+
+
+# can resize image ...
+
+
+model = ACNNInfer('/dir/output/save/model/', resize=None)
+
+seg, shape_head = model(path_to_image)
+    
+    
+    
+    
 
 
