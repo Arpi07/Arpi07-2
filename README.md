@@ -82,7 +82,7 @@ train_model(
 
 for img, label, edge_label in dataset:
 
-    # im         [b, h, w, 3]       tf.float32 
+    # img         [b, h, w, 3]       tf.float32 
     
     # label      [b, h, w, classes] tf.float32, classes = number of target classes
     
@@ -101,7 +101,6 @@ for img, label, edge_label in dataset:
 from Attention_cnn.model import export_model,ACNNInfer
 
 
-# Creation of Saved model...
 
 export_model(
 
