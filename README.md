@@ -123,5 +123,11 @@ seg, shape_head = model(path_to_image)
     
     
     
+    
+   
+   
+   
+   #######################################################################
+   The courrent work is at under review. The link for downloading of all the data and annotation files will be avialable here after completion of the review of the current work. 
 
 
